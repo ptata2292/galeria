@@ -1,4 +1,7 @@
 Imágenes/
 Videoclips/
+node_modules/
+.next/
 scripts/
 *.md
+.git/
