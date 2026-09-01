@@ -22,7 +22,7 @@ export interface MediaFile {
 
 function getMediaType(key: string): "image" | "video" {
   const ext = key.split(".").pop()?.toLowerCase() || "";
-  const videoExts = ["mp4", "mov", "avi", "mkv", "webm", "3gp", "m4v"];
+  const videoExts = ["mp4", "mov", "avi", "mkv", "webm", "m4v"];
   return videoExts.includes(ext) ? "video" : "image";
 }
 
@@ -46,7 +46,13 @@ export async function listFiles(prefix?: string): Promise<MediaFile[]> {
     
     if (response.Contents) {
       const files = response.Contents
-        .filter((item) => item.Key && item.Size && item.Size > 0)
+        .filter((item) => {
+          if (!item.Key || !item.Size || item.Size === 0) return false;
+          const name = item.Key.split("/").pop() || "";
+          if (name.startsWith(".")) return false;
+          if (item.Key.endsWith(".3gp")) return false;
+          return true;
+        })
         .map((item) => ({
           key: item.Key!,
           name: getFileName(item.Key!),
