@@ -95,3 +95,4 @@ npm run build    # Build de producción
 npm run upload   # Subir archivos a R2
 npm run lint     # Verificar código
 ```
+// commit para redeploy
