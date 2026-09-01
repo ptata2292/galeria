@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listFiles, getPresignedUrl } from "@/lib/r2";
+import { listFiles, getPresignedUrl, getThumbnailKey } from "@/lib/r2";
 
 const PAGE_SIZE = 50;
 
@@ -21,10 +21,21 @@ export async function GET(request: Request) {
     const paginatedFiles = filtered.slice(start, end);
 
     const filesWithUrls = await Promise.all(
-      paginatedFiles.map(async (file) => ({
-        ...file,
-        url: await getPresignedUrl(file.key, 86400),
-      }))
+      paginatedFiles.map(async (file) => {
+        const url = await getPresignedUrl(file.key, 86400);
+        let thumbnail: string | undefined;
+
+        if (file.type === "video") {
+          const thumbKey = getThumbnailKey(file.key);
+          thumbnail = await getPresignedUrl(thumbKey, 86400);
+        }
+
+        return {
+          ...file,
+          url,
+          thumbnail,
+        };
+      })
     );
 
     return NextResponse.json({

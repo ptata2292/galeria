@@ -17,6 +17,7 @@ export interface MediaFile {
   name: string;
   size: number;
   type: "image" | "video";
+  thumbnail?: string;
   lastModified?: Date;
 }
 
@@ -28,6 +29,10 @@ function getMediaType(key: string): "image" | "video" {
 
 function getFileName(key: string): string {
   return key.split("/").pop() || key;
+}
+
+function getThumbnailKey(videoKey: string): string {
+  return videoKey.replace("videoclips/", "thumbs/").replace(".mp4", ".jpg");
 }
 
 export async function listFiles(prefix?: string): Promise<MediaFile[]> {
@@ -100,4 +105,4 @@ export async function fileExists(key: string): Promise<boolean> {
   }
 }
 
-export { r2, BUCKET };
+export { r2, BUCKET, getThumbnailKey };

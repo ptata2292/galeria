@@ -10,13 +10,16 @@ interface MediaCardProps {
     size: number;
     type: "image" | "video";
     url: string;
+    thumbnail?: string;
   };
   onDelete?: (key: string) => void;
-  onPreview?: (file: { key: string; name: string; type: "image" | "video"; url: string }) => void;
+  onPreview?: (file: { key: string; name: string; type: "image" | "video"; url: string; thumbnail?: string }) => void;
   isAdmin?: boolean;
 }
 
 export default function MediaCard({ file, onDelete, onPreview, isAdmin }: MediaCardProps) {
+  const [imgError, setImgError] = useState(false);
+
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     const a = document.createElement("a");
@@ -44,23 +47,28 @@ export default function MediaCard({ file, onDelete, onPreview, isAdmin }: MediaC
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const thumbnailUrl = file.thumbnail || file.url;
+
   return (
     <div 
       className="group relative bg-zinc-900 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
       onClick={() => onPreview?.(file)}
     >
       <div className="aspect-square relative overflow-hidden">
-        {file.type === "video" ? (
-          <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-            <Play className="w-12 h-12 text-white/70" />
+        <img
+          src={thumbnailUrl}
+          alt={file.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={() => setImgError(true)}
+        />
+        
+        {file.type === "video" && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center">
+              <Play className="w-6 h-6 text-white ml-0.5" />
+            </div>
           </div>
-        ) : (
-          <img
-            src={file.url}
-            alt={file.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
         )}
       </div>
 
